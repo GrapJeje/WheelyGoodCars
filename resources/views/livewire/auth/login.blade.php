@@ -3,69 +3,60 @@
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
-new
-#[Layout('layouts.default')]
+new #[Layout('layouts.default')]
 class extends Component {
-
     public string $email = '';
     public string $password = '';
+    public bool $remember = false;
 
-    public function login()
+    public function login(): void
     {
         $this->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+            'email' => ['required', 'email'],
+            'password' => ['required'],
         ]);
 
-        if (Auth::attempt([
-            'email' => $this->email,
-            'password' => $this->password,
-        ])) {
-            request()->session()->regenerate();
-            return redirect('/dashboard');
+        if (!Auth::attempt(
+            ['email' => $this->email, 'password' => $this->password],
+            $this->remember
+        )) {
+            throw ValidationException::withMessages([
+                'email' => __('Deze gegevens kloppen niet.'),
+            ]);
         }
 
-        $this->addError('email', 'Invalid login credentials.');
-    }
-}
+        session()->regenerate();
 
+        $this->redirectIntended(route('dashboard'), navigate: true);
+    }
+};
 ?>
 
-<div style="max-width: 400px; margin: 100px auto; font-family: sans-serif;">
-    <h2>Login</h2>
-
-    <form wire:submit.prevent="login">
-        <div style="margin-bottom: 10px;">
+<div>
+    <form wire:submit="login">
+        <div>
             <label>Email</label><br>
-            <input
-                type="email"
-                wire:model.defer="email"
-                style="width: 100%; padding: 6px;"
-            >
+            <input type="email" wire:model="email">
             @error('email')
-            <div style="color: red; font-size: 12px;">
-                {{ $message }}
-            </div>
-            @enderror
+            <div>{{ $message }}</div> @enderror
         </div>
 
-        <div style="margin-bottom: 10px;">
+        <div>
             <label>Password</label><br>
-            <input
-                type="password"
-                wire:model.defer="password"
-                style="width: 100%; padding: 6px;"
-            >
+            <input type="password" wire:model="password">
             @error('password')
-            <div style="color: red; font-size: 12px;">
-                {{ $message }}
-            </div>
-            @enderror
+            <div>{{ $message }}</div> @enderror
         </div>
 
-        <button type="submit" style="padding: 8px 12px;">
-            Login
-        </button>
+        <div>
+            <label>
+                <input type="checkbox" wire:model="remember">
+                Remember me
+            </label>
+        </div>
+
+        <button type="submit">Login</button>
     </form>
 </div>

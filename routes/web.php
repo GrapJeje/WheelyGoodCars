@@ -2,11 +2,13 @@
 
 use Livewire\Volt\Volt;
 
-Volt::route('/', 'auth.login')
+Volt::route('/', 'home')
     ->name('home');
 
-Volt::route('/register', 'auth.register')
-    ->name('register');
+Route::middleware('guest')->group(function () {
+    Volt::route('/register', 'auth.register')
+        ->name('register');
 
-Volt::route('/login', 'auth.login')
-    ->name('login');
+    Volt::route('/login', 'auth.login')
+        ->name('login');
+});

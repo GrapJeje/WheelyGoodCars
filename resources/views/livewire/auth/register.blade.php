@@ -2,90 +2,60 @@
 
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
-use Illuminate\Support\Facades\Hash;
-use App\Models\User;
+use Laravel\Fortify\Contracts\CreatesNewUsers;
+use Illuminate\Support\Facades\Auth;
 
-new
-#[Layout('layouts.default')]
+new #[Layout('layouts.default')]
 class extends Component {
-
     public string $name = '';
     public string $email = '';
     public string $password = '';
     public string $password_confirmation = '';
 
-    public function register()
+    public function register(CreatesNewUsers $creator): void
     {
-        $this->validate([
-            'name' => 'required|min:2',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6|confirmed',
-        ]);
-
-        User::create([
+        $user = $creator->create([
             'name' => $this->name,
             'email' => $this->email,
-            'password' => Hash::make($this->password),
+            'password' => $this->password,
+            'password_confirmation' => $this->password_confirmation,
         ]);
 
-        return redirect('/login');
-    }
-}
+        Auth::login($user);
 
+        $this->redirect(route('dashboard'), navigate: true);
+    }
+};
 ?>
 
-<div style="max-width: 400px; margin: 100px auto; font-family: sans-serif;">
-    <h2>Register</h2>
-
-    <form wire:submit.prevent="register">
-
-        <div style="margin-bottom: 10px;">
+<div>
+    <form wire:submit="register">
+        <div>
             <label>Name</label><br>
-            <input
-                type="text"
-                wire:model.defer="name"
-                style="width: 100%; padding: 6px;"
-            >
+            <input type="text" wire:model="name">
             @error('name')
-            <div style="color: red; font-size: 12px;">{{ $message }}</div>
-            @enderror
+            <div>{{ $message }}</div> @enderror
         </div>
 
-        <div style="margin-bottom: 10px;">
+        <div>
             <label>Email</label><br>
-            <input
-                type="email"
-                wire:model.defer="email"
-                style="width: 100%; padding: 6px;"
-            >
+            <input type="email" wire:model="email">
             @error('email')
-            <div style="color: red; font-size: 12px;">{{ $message }}</div>
-            @enderror
+            <div>{{ $message }}</div> @enderror
         </div>
 
-        <div style="margin-bottom: 10px;">
+        <div>
             <label>Password</label><br>
-            <input
-                type="password"
-                wire:model.defer="password"
-                style="width: 100%; padding: 6px;"
-            >
+            <input type="password" wire:model="password">
             @error('password')
-            <div style="color: red; font-size: 12px;">{{ $message }}</div>
-            @enderror
+            <div>{{ $message }}</div> @enderror
         </div>
 
-        <div style="margin-bottom: 10px;">
+        <div>
             <label>Confirm password</label><br>
-            <input
-                type="password"
-                wire:model.defer="password_confirmation"
-                style="width: 100%; padding: 6px;"
-            >
+            <input type="password" wire:model="password_confirmation">
         </div>
 
-        <button type="submit" style="padding: 8px 12px;">
-            Register
-        </button>
+        <button type="submit">Register</button>
     </form>
 </div>
