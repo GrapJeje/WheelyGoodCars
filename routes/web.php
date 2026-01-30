@@ -1,7 +1,12 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use Livewire\Volt\Volt;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Volt::route('/', 'auth.login')
+    ->name('home');
+
+Volt::route('/register', 'auth.register')
+    ->name('register');
+
+Volt::route('/login', 'auth.login')
+    ->name('login');
