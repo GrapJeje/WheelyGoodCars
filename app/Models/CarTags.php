@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class CarTags extends Model
 {
+    protected $table = 'tags';
+    public $timestamps = false;
+
     protected $fillable = [
         'car_id',
         'tag_id',

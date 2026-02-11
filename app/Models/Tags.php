@@ -8,8 +8,10 @@ class Tags extends Model
 {
     protected $fillable = [
         'name',
-        'description',
+        'color',
     ];
+
+    public $timestamps = false;
 
     public function carTags()
     {
