@@ -26,6 +26,8 @@
 </head>
 <body>
 
+@include('components.header')
+
 <main class="container">
     @if (isset($slot))
         {{ $slot }}
