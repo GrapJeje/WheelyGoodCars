@@ -20,6 +20,9 @@
     <!-- Styles -->
     @vite('resources/sass/app.scss')
 
+    <!-- Scripts -->
+    @vite('resources/js/app.js')
+
     <!-- Livewire -->
     @livewireStyles
     @livewireScripts

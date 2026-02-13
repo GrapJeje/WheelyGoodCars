@@ -9,8 +9,17 @@
 
 // Import components
 @import "components/header";
+@import "components/auth";
 @import "listings/create/step1";
 @import "listings/create/step2";
+
+:root {
+    --background: #f1f1f0;
+    --background-lighter: #ffffff;
+    --background-darker: #e0e0de;
+
+    --font: 'Bebas Neue', sans-serif;
+}
 
 *,
 *::before,
@@ -20,7 +29,17 @@
     margin: 0;
 }
 
+body {
+    background-color: var(--background);
+    font-family: var(--font), 'sans-serif';
+}
+
 .container {
     width: 90%;
+    margin: 0 auto;
+}
+
+.container-40 {
+    width: 40%;
     margin: 0 auto;
 }

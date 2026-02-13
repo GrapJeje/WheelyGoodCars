@@ -1,0 +1,171 @@
+:root {
+    --blue: #003caa;
+}
+
+.auth {
+    background-color: var(--background-lighter);
+    margin-top: 2.5rem !important;
+
+    border: 2px solid var(--background-darker);
+    border-radius: 10px;
+
+    .container {
+        padding: 1.5rem;
+    }
+
+    .tab {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+
+        a {
+            text-align: center;
+            color: var(--blue);
+
+            border-bottom: 1px solid var(--background-darker);
+            padding: .5em;
+        }
+
+        .active {
+            border-bottom: 2px solid var(--blue);
+        }
+    }
+
+    .title {
+        text-align: center;
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+
+        a {
+            color: var(--blue);
+            transition: text-decoration .2s ease-in-out;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    form {
+        input {
+            width: 100%;
+            padding: .3rem .5rem;
+            margin-bottom: 1rem;
+
+            border-radius: 10px;
+            border: solid 1px var(--background-darker);
+        }
+
+        .checkbox {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: left;
+            gap: .5rem;
+
+            label {
+                margin: 0;
+                cursor: pointer;
+            }
+
+            input[type="checkbox"] {
+                width: 1.1rem;
+                height: 1.1rem;
+                margin: 0;
+            }
+        }
+
+        .password-field {
+            display: flex;
+            gap: .5rem;
+            align-items: stretch;
+            margin-bottom: 1rem;
+
+            input[type="password"],
+            input[type="text"] {
+                flex: 1;
+                padding: .3rem .5rem;
+                border-radius: 10px;
+                border: solid 1px var(--background-darker);
+                margin-bottom: 0;
+            }
+
+            .toggle-password {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                width: 2.5rem;
+                height: auto;
+                padding: .3rem .5rem;
+
+                border: solid 1px var(--background-darker);
+                background: transparent;
+                color: var(--text-color, currentColor);
+                cursor: pointer;
+                border-radius: 10px;
+
+                margin: 0;
+                transition: color .2s ease-in-out, background-color .2s ease-in-out;
+
+                .icon {
+                    width: 18px;
+                    height: 18px;
+                    transition: display .15s ease-in-out;
+                    flex-shrink: 0;
+                }
+
+                &:hover {
+                    background-color: var(--background-lighter);
+                }
+
+                &:focus {
+                    outline: 2px solid var(--blue);
+                    outline-offset: 2px;
+                }
+
+                &.active {
+                    color: var(--blue);
+                }
+            }
+        }
+
+        button[type="submit"] {
+            background-color: var(--blue);
+            width: 100%;
+            color: white;
+
+            margin-top: 1rem;
+            padding: .5rem 1rem;
+            border-radius: 10px;
+
+            border: none;
+            cursor: pointer;
+            transition: background-color .2s ease-in-out;
+
+            &:hover {
+                background-color: #002a7a;
+            }
+
+            &:focus {
+                outline: 2px solid var(--blue);
+                outline-offset: 2px;
+            }
+        }
+
+        .error-message {
+            margin-top: .5rem;
+            min-height: 1.2rem;
+            color: #a60b0b;
+            background: rgba(166, 11, 11, 0.06);
+            border: 1px solid rgba(166, 11, 11, 0.15);
+            padding: .45rem .6rem;
+            border-radius: 8px;
+            font-size: .95rem;
+            text-align: center;
+            transform: translateY(-3px);
+            transition: opacity .18s ease, transform .18s ease;
+        }
+    }
+}

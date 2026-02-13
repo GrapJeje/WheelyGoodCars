@@ -17,6 +17,8 @@ header {
     padding: 1.5rem;
     font-family: var(--font-accent), sans-serif;
 
+    border-bottom: 2px solid var(--background-darker);
+
     .header {
         display: flex;
         justify-content: space-between;
