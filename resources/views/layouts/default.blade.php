@@ -12,7 +12,7 @@
         {
             $title = View::yieldContent('title');
             $base = config('app.name');
-            return $title ? $base . ' | ' . $title : $base . ' | Full-Stack Developer';
+            return $title ? $base . ' | ' . $title : $base;
         }
     @endphp
     <title>{{ page_title() }}</title>

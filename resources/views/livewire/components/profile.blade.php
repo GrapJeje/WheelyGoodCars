@@ -13,7 +13,7 @@ new class extends Component {
     </a>
 
     <div class="dropdown" style="display: {{ $dropdown ? 'block' : 'none' }}">
-        <a href="">Mijn aanbod</a>
+        <a href="{{ route('user.listings') }}">Mijn aanbod</a>
         <form action="{{ route('logout') }}" method="POST">
             @csrf
             <input type="submit" value="Logout" class="logout-button">

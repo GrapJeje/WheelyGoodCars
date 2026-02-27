@@ -254,18 +254,17 @@ class extends Component {
                 ]);
 
                 // TEMP
-                $tag = TagModel::firstOrCreate(
+                $tag = CarTagModel::firstOrCreate(
                     ['name' => 'for-sale'],
                     ['color' => 'blue']
                 );
 
-                CarTagModel::create([
+                TagModel::create([
                     'car_id' => $car->id,
                     'tag_id' => $tag->id,
                 ]);
 
-                // TODO: Change to listings page
-                $this->redirect('/');
+                $this->redirect(route('user.listings'));
             });
         } catch (\Exception $e) {
             throw ValidationException::withMessages([
@@ -281,6 +280,9 @@ class extends Component {
     }
 
 }; ?>
+
+@section('title', 'Nieuw aanbod')
+
 
 <div>
     @if ($this->step === 1)
