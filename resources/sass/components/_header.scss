@@ -1,3 +1,5 @@
+@import "profile";
+
 :root {
     --font-accent: 'Bebas Neue', sans-serif;
 
@@ -57,6 +59,12 @@ header {
             }
         }
 
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            min-width: 15%;
+        }
+
         .add-car {
             padding: 1rem;
             margin-right: .5rem;
@@ -74,6 +82,8 @@ header {
         }
 
         .login {
+            display: flex;
+            align-items: center;
             transition: text-decoration .3s ease;
 
             &:hover {

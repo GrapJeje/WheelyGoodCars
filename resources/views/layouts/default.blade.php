@@ -20,6 +20,8 @@
     <!-- Styles -->
     @vite('resources/sass/app.scss')
 
+    <link rel="stylesheet" href="lib/icofont/icofont.min.css">
+
     <!-- Scripts -->
     @vite('resources/js/app.js')
 

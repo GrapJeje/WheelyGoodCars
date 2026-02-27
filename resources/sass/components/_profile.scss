@@ -1,0 +1,22 @@
+.profile-container {
+    img {
+        height: 80%;
+        width: 80%;
+    }
+
+    .dropdown {
+        position: absolute;
+        top: 110%;
+        right: 15px;
+        z-index: 50;
+        min-width: 180px;
+        padding: 10px;
+
+        background-color: white;
+        border-radius: 15px;
+
+        .logout-button {
+            cursor: pointer;
+        }
+    }
+}
