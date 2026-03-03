@@ -89,6 +89,12 @@ class extends Component {
             ]);
         }
 
+        if (CarModel::where('license_plate', $this->plate)->whereNull('sold_at')->exists()) {
+            throw ValidationException::withMessages([
+                'plate' => 'Er bestaat al een actief aanbod met dit kenteken.',
+            ]);
+        }
+
         // Validate the plate against the RDW API
         try {
             $response = Http::timeout(5)->get(
