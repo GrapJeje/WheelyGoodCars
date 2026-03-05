@@ -26,7 +26,7 @@ class extends Component {
             <a href="" class="list-item">
                 <div class="list-image">
                     @if($listing->image)
-                        <img src="{{ $listing->image }}" alt="{{ $listing->make }} {{ $listing->model }}">
+                        <img src="{{ asset('storage/' . $listing->image) }}" alt="{{ $listing->make }} {{ $listing->model }}">
                     @else
                         <div class="image-placeholder">
                             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"

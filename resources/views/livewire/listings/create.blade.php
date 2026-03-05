@@ -11,9 +11,13 @@ use Livewire\Volt\Component;
 use App\Models\Cars as CarModel;
 use App\Models\Tags as TagModel;
 use App\Models\CarTags as CarTagModel;
+use Livewire\WithFileUploads;
 
 new #[Layout('layouts.default')]
 class extends Component {
+
+    use WithFileUploads;
+
     public string $plate = '';
     public int $step = 1;
 
@@ -34,6 +38,7 @@ class extends Component {
     public ?int $co2 = null;
     public ?string $vin = null;
     public ?string $notes = null;
+    public $image = null;
 
     // Tag properties
     public array $selectedTags = [];
@@ -100,21 +105,21 @@ class extends Component {
             'newTagName' => 'required|string|max:30|unique:car_tags,name',
         ], [
             'newTagName.required' => 'Vul een tagnaam in.',
-            'newTagName.unique'   => 'Deze tag bestaat al.',
-            'newTagName.max'      => 'Naam mag maximaal 30 tekens zijn.',
+            'newTagName.unique' => 'Deze tag bestaat al.',
+            'newTagName.max' => 'Naam mag maximaal 30 tekens zijn.',
         ]);
 
         // Enforce max 5 tags per car (should not happen due to UI, but just in case)
         if (count($this->selectedTags) >= 5) return;
 
         $tag = CarTagModel::create([
-            'name'  => strtolower(trim($this->newTagName)),
+            'name' => strtolower(trim($this->newTagName)),
             'color' => $this->newTagColor,
         ]);
 
         $this->availableTags[] = $tag->toArray();
-        $this->selectedTags[]  = $tag->id;
-        $this->newTagName      = '';
+        $this->selectedTags[] = $tag->id;
+        $this->newTagName = '';
     }
 
     public function step1Submit(): void
@@ -255,6 +260,7 @@ class extends Component {
             'km' => 'required|numeric|min:0',
             'price' => 'required|numeric|min:0',
             'vin' => 'nullable|string|max:32',
+            'image' => 'nullable|image|max:5120'
         ];
 
         $messages = [
@@ -272,6 +278,8 @@ class extends Component {
             'price.required' => 'Vul de vraagprijs in.',
             'price.numeric' => 'Vraagprijs moet een getal zijn.',
             'price.min' => 'Vraagprijs kan niet negatief zijn.',
+            'image.image' => 'Het bestand moet een afbeelding zijn.',
+            'image.max'   => 'De afbeelding mag maximaal 5 MB zijn.',
         ];
 
         $validated = $this->validate($rules, $messages);
@@ -311,6 +319,7 @@ class extends Component {
                     'production_year' => $this->year,
                     'weight' => $this->curb_weight,
                     'color' => $this->color,
+                    'image' => $this->image ? $this->image->store('cars', 'public') : null,
                 ]);
 
                 foreach ($this->selectedTags as $tagId) {
@@ -445,6 +454,29 @@ class extends Component {
                             <span class="currency">€</span>
                             <input type="number" id="price" name="price" wire:model.defer="price"/>
                         </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-item" style="grid-column: 1 / -1;">
+                        <label for="image">Afbeelding</label>
+                        <div class="image-upload-box" id="image-drop-zone">
+                            @if ($image)
+                                <img src="{{ $image->temporaryUrl() }}" alt="Preview" class="image-preview"/>
+                                <button type="button" wire:click="$set('image', null)" class="image-remove-btn" aria-label="Afbeelding verwijderen">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                    Verwijderen
+                                </button>
+                            @else
+                                <label for="image" class="image-upload-label">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    <span>Klik om een foto te uploaden</span>
+                                    <span class="image-upload-hint">JPG, PNG, WEBP — max. 5 MB</span>
+                                    <input type="file" id="image" wire:model="image" accept="image/*" class="image-file-input"/>
+                                </label>
+                            @endif
+                        </div>
+                        @error('image') <p class="error-message visible">{{ $message }}</p> @enderror
                     </div>
                 </div>
 
