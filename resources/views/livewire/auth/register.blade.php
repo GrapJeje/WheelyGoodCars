@@ -12,7 +12,7 @@ class extends Component {
     public string $password = '';
     public string $password_confirmation = '';
 
-    public function register(CreatesNewUsers $creator): void
+    public function register(CreatesNewUsers $creator)
     {
         $user = $creator->create([
             'name' => $this->name,
@@ -23,7 +23,7 @@ class extends Component {
 
         Auth::login($user);
 
-        $this->redirect(route('dashboard'), navigate: true);
+        return $this->redirect(route('user.listings'));
     }
 };
 ?>
@@ -41,6 +41,7 @@ class extends Component {
         </div>
 
         <form wire:submit="register">
+            @csrf
             <div>
                 <label for="name">Gebruikersnaam</label>
                 <input id="name" type="text" wire:model="name">

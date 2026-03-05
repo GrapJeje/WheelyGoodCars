@@ -11,7 +11,7 @@ class extends Component {
     public string $password = '';
     public bool $remember = false;
 
-    public function login(): void
+    public function login()
     {
         $this->validate([
             'email' => ['required', 'email'],
@@ -29,7 +29,7 @@ class extends Component {
 
         session()->regenerate();
 
-        $this->redirectIntended(route('dashboard'), navigate: true);
+        return $this->redirect(route('user.listings'));
     }
 };
 ?>
@@ -47,6 +47,7 @@ class extends Component {
         </div>
 
         <form wire:submit="login">
+            @csrf
             <div>
                 <label for="email">E-mailadres</label>
                 <input type="email" wire:model="email">
