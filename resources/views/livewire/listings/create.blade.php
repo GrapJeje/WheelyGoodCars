@@ -35,9 +35,20 @@ class extends Component {
     public ?string $vin = null;
     public ?string $notes = null;
 
+    // Tag properties
+    public array $selectedTags = [];
+    public string $newTagName = '';
+    public string $newTagColor = 'blue';
+    public array $availableTags = [];
+
     // user-entered
     public ?string $km = null;
     public ?string $price = null;
+
+    public function mount(): void
+    {
+        $this->availableTags = CarTagModel::all()->toArray();
+    }
 
     // Helper to pick the first available RDW key from a list
     private function firstFrom(array $vehicle, array $keys): ?string
@@ -66,6 +77,44 @@ class extends Component {
         $pk = $this->intFromString($pkStr);
         if ($pk === null) return null;
         return (int)round($pk * 0.7355);
+    }
+
+    public function addTag(int $tagId): void
+    {
+        if (count($this->selectedTags) >= 5) return;
+        if (!in_array($tagId, $this->selectedTags)) {
+            $this->selectedTags[] = $tagId;
+        }
+    }
+
+    public function removeTag(int $tagId): void
+    {
+        $this->selectedTags = array_values(
+            array_filter($this->selectedTags, fn($id) => $id !== $tagId)
+        );
+    }
+
+    public function createTag(): void
+    {
+        $this->validate([
+            'newTagName' => 'required|string|max:30|unique:car_tags,name',
+        ], [
+            'newTagName.required' => 'Vul een tagnaam in.',
+            'newTagName.unique'   => 'Deze tag bestaat al.',
+            'newTagName.max'      => 'Naam mag maximaal 30 tekens zijn.',
+        ]);
+
+        // Enforce max 5 tags per car (should not happen due to UI, but just in case)
+        if (count($this->selectedTags) >= 5) return;
+
+        $tag = CarTagModel::create([
+            'name'  => strtolower(trim($this->newTagName)),
+            'color' => $this->newTagColor,
+        ]);
+
+        $this->availableTags[] = $tag->toArray();
+        $this->selectedTags[]  = $tag->id;
+        $this->newTagName      = '';
     }
 
     public function step1Submit(): void
@@ -235,23 +284,28 @@ class extends Component {
         if (isset($validated['km'])) $this->km = (string)$validated['km'];
         if (isset($validated['price'])) $this->price = (string)$validated['price'];
 
+        $this->step = 3;
+    }
+
+    public function step3Submit(): void
+    {
         // Persist the car and a default tag and link them. Wrap in a DB transaction.
         try {
             DB::transaction(function () {
                 $user = Auth::user();
 
-                if ($user == null) {
+                if (!$user) {
                     $this->redirect('/login');
                     return;
                 }
 
                 $car = CarModel::create([
-                    'user_id' => $user ? $user->id : null,
+                    'user_id' => $user->id,
                     'license_plate' => $this->plate,
                     'make' => $this->brand ?? '',
                     'model' => $this->model ?? '',
-                    'price' => isset($this->price) ? (float)str_replace([',', '€', ' '], ['', '', ''], $this->price) : 0.0,
-                    'mileage' => isset($this->km) ? (int)preg_replace('/[^0-9]/', '', $this->km) : 0,
+                    'price' => (float)$this->price,
+                    'mileage' => (int)$this->km,
                     'seats' => $this->seats,
                     'doors' => $this->doors,
                     'production_year' => $this->year,
@@ -259,36 +313,31 @@ class extends Component {
                     'color' => $this->color,
                 ]);
 
-                // TEMP
-                $tag = CarTagModel::firstOrCreate(
-                    ['name' => 'for-sale'],
-                    ['color' => 'blue']
-                );
-
-                TagModel::create([
-                    'car_id' => $car->id,
-                    'tag_id' => $tag->id,
-                ]);
-
-                $this->redirect(route('user.listings'));
+                foreach ($this->selectedTags as $tagId) {
+                    TagModel::create([
+                        'car_id' => $car->id,
+                        'tag_id' => $tagId,
+                    ]);
+                }
             });
+
+            $this->redirect(route('user.listings'));
+
         } catch (\Exception $e) {
             throw ValidationException::withMessages([
                 'general' => 'Kon het aanbod niet opslaan: ' . $e->getMessage(),
             ]);
         }
-
     }
 
     public function previous(): void
     {
-        $this->step = 1;
+        $this->step--;
     }
 
 }; ?>
 
 @section('title', 'Nieuw aanbod')
-
 
 <div>
     @if ($this->step === 1)
@@ -321,10 +370,10 @@ class extends Component {
                 @enderror
             </form>
             <div>
-                <p>{{ $this->step }}/2</p>
+                <p>{{ $this->step }}/3</p>
             </div>
         </div>
-    @else
+    @elseif ($this->step === 2)
         <div class="create-listing-step-2">
             <div class="header-row">
                 <button type="button" wire:click="previous" class="back-btn" aria-label="Vorige stap">
@@ -406,11 +455,135 @@ class extends Component {
                 </div>
 
                 <div class="form-group">
-                    <input type="submit" class="btn-primary" value="Aanbod afronden"/>
+                    <input type="submit" class="btn-primary" value="Volgende stap"/>
                 </div>
             </form>
             <div class="step-counter">
-                <p>{{ $this->step }}/2</p>
+                <p>{{ $this->step }}/3</p>
+            </div>
+        </div>
+    @else
+        <div class="create-listing-step-3">
+            <div class="header-row">
+                <button type="button" wire:click="previous" class="back-btn" aria-label="Vorige stap">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                              stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <h1>Voeg tags toe</h1>
+            </div>
+
+            <div class="plate">
+                <p>NL</p>
+                <p>{{ $this->plate }}</p>
+            </div>
+
+            {{-- Geselecteerde tags --}}
+            <div class="tag-section">
+                <div class="tag-section-header">
+                    <span class="tag-section-label">Geselecteerde tags</span>
+                    <span class="tag-count {{ count($this->selectedTags) >= 5 ? 'tag-count--full' : '' }}">
+                    {{ count($this->selectedTags) }}/5
+                </span>
+                </div>
+
+                <div class="selected-tags">
+                    @forelse ($this->selectedTags as $selectedId)
+                        @php
+                            $tag = collect($this->availableTags)->firstWhere('id', $selectedId);
+                        @endphp
+                        @if ($tag)
+                            <div class="tag-chip tag-chip--selected tag-color--{{ $tag['color'] }}">
+                                <span>{{ $tag['name'] }}</span>
+                                <button type="button" wire:click="removeTag({{ $tag['id'] }})" class="tag-remove"
+                                        aria-label="Verwijder tag">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                         stroke-linecap="round">
+                                        <path d="M18 6L6 18M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        @endif
+                    @empty
+                        <p class="tag-empty">Nog geen tags geselecteerd.</p>
+                    @endforelse
+                </div>
+            </div>
+
+            {{-- Beschikbare tags --}}
+            @if (count($this->availableTags) > 0)
+                <div class="tag-section">
+                    <div class="tag-section-header">
+                        <span class="tag-section-label">Beschikbare tags</span>
+                    </div>
+                    <div class="available-tags">
+                        @foreach ($this->availableTags as $tag)
+                            @php $isSelected = in_array($tag['id'], $this->selectedTags); @endphp
+                            <button
+                                type="button"
+                                wire:click="addTag({{ $tag['id'] }})"
+                                class="tag-chip tag-color--{{ $tag['color'] }} {{ $isSelected ? 'tag-chip--active' : '' }}"
+                                {{ ($isSelected || count($this->selectedTags) >= 5) ? 'disabled' : '' }}
+                                aria-pressed="{{ $isSelected ? 'true' : 'false' }}"
+                            >
+                                {{ $tag['name'] }}
+                                @if ($isSelected)
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                         stroke-linecap="round" stroke-linejoin="round"
+                                         style="width:13px;height:13px;margin-left:4px">
+                                        <path d="M20 6L9 17l-5-5"/>
+                                    </svg>
+                                @endif
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            {{-- Nieuwe tag aanmaken --}}
+            @if (count($this->selectedTags) < 5)
+                <div class="tag-section">
+                    <div class="tag-section-header">
+                        <span class="tag-section-label">Nieuwe tag aanmaken</span>
+                    </div>
+                    <div class="new-tag-row">
+                        <div class="boxed-input" style="flex:1">
+                            <input
+                                type="text"
+                                placeholder="tagnaam..."
+                                wire:model.defer="newTagName"
+                                maxlength="30"
+                            />
+                        </div>
+                        <select wire:model="newTagColor" class="color-select">
+                            <option value="blue">🔵 Blauw</option>
+                            <option value="yellow">🟡 Geel</option>
+                            <option value="green">🟢 Groen</option>
+                            <option value="red">🔴 Rood</option>
+                            <option value="gray">⚪ Grijs</option>
+                        </select>
+                        <button type="button" wire:click="createTag" class="btn-secondary">
+                            + Aanmaken
+                        </button>
+                    </div>
+                    @error('newTagName')
+                    <p class="error-message visible" style="margin-top:.5rem">{{ $message }}</p>
+                    @enderror
+                </div>
+            @endif
+
+            <form wire:submit.prevent="step3Submit">
+                <div class="form-group" style="margin-top: 1rem">
+                    @error('general')
+                    <p class="error-message visible">{{ $message }}</p>
+                    @enderror
+                    <input type="submit" class="btn-primary" value="Aanbod afronden"/>
+                </div>
+            </form>
+
+            <div class="step-counter">
+                <p>{{ $this->step }}/3</p>
             </div>
         </div>
     @endif
