@@ -22,19 +22,16 @@ class Cars extends Model
         'sold_at',
         'views'
     ];
-
     public function owner()
     {
-        return $this->belongsTo(User::class, 'owner_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
-
     public function carTags()
     {
         return $this->hasMany(CarTags::class, 'car_id');
     }
-
     public function tags()
     {
-        return $this->hasManyThrough(Tags::class, CarTags::class, 'car_id', 'id', 'id', 'tag_id');
+        return $this->belongsToMany(Tags::class, 'car_tags', 'car_id', 'tag_id');
     }
 }

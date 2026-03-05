@@ -6,15 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class CarTags extends Model
 {
+    protected $table = 'car_tags';
     protected $fillable = [
-        'name',
-        'color',
+        'car_id',
+        'tag_id',
     ];
-
-    public $timestamps = false;
-
-    public function carTags()
+    public $timestamps = true;
+    public function car()
     {
-        return $this->hasMany(CarTags::class, 'tag_id');
+        return $this->belongsTo(Cars::class, 'car_id');
+    }
+    public function tag()
+    {
+        return $this->belongsTo(Tags::class, 'tag_id');
     }
 }

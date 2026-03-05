@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('tags', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('car_id')->constrained('cars');
-            $table->foreignId('tag_id')->constrained('tags');
+            $table->string('name')->unique();
+            $table->string('color')->nullable();
+            $table->timestamps();
         });
     }
 
