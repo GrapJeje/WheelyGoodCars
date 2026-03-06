@@ -14,6 +14,7 @@
 @import "listings/create/step2";
 @import "listings/create/step3";
 @import "listings/mylistings";
+@import "listings/listings";
 
 :root {
     --background: #f1f1f0;
@@ -44,4 +45,101 @@ body {
 .container-40 {
     width: 40%;
     margin: 0 auto;
+}
+
+.pagination-wrapper {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+
+    p.text-sm {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin: 0;
+    }
+
+    nav {
+        width: 100%;
+
+        .flex.items-center.justify-between {
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .flex.justify-between.flex-1 {
+            display: none !important;
+        }
+
+        .hidden.sm\:flex-1 {
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .relative.z-0 {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            box-shadow: none;
+        }
+
+        button, span > span {
+            all: unset;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 500;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #374151;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease;
+
+            &:hover {
+                background: #f9fafb;
+                border-color: #d1d5db;
+            }
+        }
+
+        span[aria-current="page"] span {
+            background: #111;
+            color: #fff;
+            border-color: #111;
+            font-weight: 600;
+        }
+
+        span[aria-disabled="true"] span {
+            color: #d1d5db;
+            background: #fafafa;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        button[dusk], button[aria-label*="Previous"], button[aria-label*="Next"] {
+            width: 2rem;
+
+            svg {
+                width: 1rem;
+                height: 1rem;
+                flex-shrink: 0;
+            }
+        }
+
+        .rounded-l-md, .rounded-r-md {
+            border-radius: 6px !important;
+        }
+    }
 }
