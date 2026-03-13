@@ -37,7 +37,6 @@ class extends Component {
     public ?int $power_kw = null;
     public ?int $co2 = null;
     public ?string $vin = null;
-    public ?string $notes = null;
     public $image = null;
 
     // Tag properties
@@ -52,7 +51,7 @@ class extends Component {
 
     public function mount(): void
     {
-        $this->availableTags = CarTagModel::all()->toArray();
+        $this->availableTags = TagModel::all()->toArray();
     }
 
     // Helper to pick the first available RDW key from a list
@@ -112,7 +111,7 @@ class extends Component {
         // Enforce max 5 tags per car (should not happen due to UI, but just in case)
         if (count($this->selectedTags) >= 5) return;
 
-        $tag = CarTagModel::create([
+        $tag = TagModel::create([
             'name' => strtolower(trim($this->newTagName)),
             'color' => $this->newTagColor,
         ]);
@@ -235,9 +234,6 @@ class extends Component {
                 $this->vin = strtoupper(preg_replace('/\s+/', '', $this->vin));
             }
 
-            // Notes: keep a JSON dump of the raw vehicle for debugging (short)
-            $this->notes = substr(json_encode($vehicle), 0, 1000);
-
             $this->step = 2;
 
         } catch (\Exception $e) {
@@ -323,7 +319,7 @@ class extends Component {
                 ]);
 
                 foreach ($this->selectedTags as $tagId) {
-                    TagModel::create([
+                    CarTagModel::create([
                         'car_id' => $car->id,
                         'tag_id' => $tagId,
                     ]);
