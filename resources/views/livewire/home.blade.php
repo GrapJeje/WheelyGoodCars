@@ -21,15 +21,28 @@ class extends Component {
     public $selectedTags = [];
     public $showTagDropdown = false;
 
-    // Reset pagination when search term changes and show dropdown
+    // Brank and model filter state
+    public $selectedMake = '';
+    public $selectedModel = '';
+
     public function updatedTagSearch()
     {
         $this->resetPage();
         $this->showTagDropdown = true;
     }
 
-    // Reset pagination when selected tags change
     public function updatedSelectedTags()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSelectedMake()
+    {
+        $this->selectedModel = '';
+        $this->resetPage();
+    }
+
+    public function updatedSelectedModel()
     {
         $this->resetPage();
     }
@@ -63,6 +76,16 @@ class extends Component {
         $this->resetPage();
     }
 
+    // Clear all filters (tags, make, model)
+    public function clearAllFilters()
+    {
+        $this->selectedTags = [];
+        $this->tagSearch = '';
+        $this->selectedMake = '';
+        $this->selectedModel = '';
+        $this->resetPage();
+    }
+
     // Return tags matching the search term, excluding already selected ones
     #[Computed]
     public function suggestedTags()
@@ -77,6 +100,25 @@ class extends Component {
             ->whereNotIn('id', $selectedIds)
             ->limit(8)
             ->get();
+    }
+
+    // Modellen die bij het geselecteerde merk horen
+    #[Computed]
+    public function models()
+    {
+        if (!$this->selectedMake) return collect();
+
+        return Cars::where('make', $this->selectedMake)
+            ->distinct()
+            ->orderBy('model')
+            ->pluck('model');
+    }
+
+// Unieke merken voor de dropdown
+    #[Computed]
+    public function makes()
+    {
+        return Cars::distinct()->orderBy('make')->pluck('make');
     }
 
     // Fetch paginated cars, apply bigChance and fill any leftover grid spots
@@ -96,6 +138,16 @@ class extends Component {
             });
         }
 
+        // Filter on brand
+        if ($this->selectedMake) {
+            $query->where('make', $this->selectedMake);
+        }
+
+        // Filter on model
+        if ($this->selectedModel) {
+            $query->where('model', $this->selectedModel);
+        }
+
         $cars = $query->paginate($this->perPage);
 
         // Randomly assign the 'bigger' class based on bigChance percentage
@@ -108,6 +160,7 @@ class extends Component {
         // if the last row is incomplete
         $cols = $cars->getCollection()->sum(fn($car) => $car->isBig ? 2 : 1);
         $remainder = $cols % 3;
+
 
         if ($remainder !== 0 && $cars->hasMorePages()) {
             $extra = 3 - $remainder;
@@ -151,42 +204,111 @@ class extends Component {
                             </button>
                         </span>
                     @endforeach
-                    <button wire:click="clearTags" class="clear-tags" type="button">Wis alles</button>
+                    <button wire:click="clearTags" class="clear-tags" type="button">Wis tags</button>
+                    @if($selectedMake)
+                        <button wire:click="clearAllFilters" class="reset-button" type="button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <polyline points="23 4 23 10 17 10"/>
+                                <polyline points="1 20 1 14 7 14"/>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36"/>
+                            </svg>
+                            Reset
+                        </button>
+                    @endif
                 </div>
             @endif
 
-            <div class="tag-search-wrapper">
-                <svg class="tag-search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"/>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-                <input
-                    type="text"
-                    wire:model.live.debounce.200ms="tagSearch"
-                    @focus="open = true"
-                    @click.outside="open = false"
-                    placeholder="Filter op tags..."
-                    class="tag-search-input"
-                    autocomplete="off"
-                />
+            @if(empty($selectedTags) && $selectedMake)
+                <div class="selected-tags">
+                    <button wire:click="clearAllFilters" class="reset-button" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <polyline points="23 4 23 10 17 10"/>
+                            <polyline points="1 20 1 14 7 14"/>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36"/>
+                        </svg>
+                        Reset alle filters
+                    </button>
+                </div>
+            @endif
 
-                <div class="tag-dropdown" x-show="open && $wire.tagSearch.length > 0" x-cloak>
-                    @if($this->suggestedTags->isNotEmpty())
-                        @foreach($this->suggestedTags as $tag)
-                            <button
-                                type="button"
-                                class="tag-option"
-                                wire:click="selectTag({{ $tag->id }}, '{{ $tag->name }}')"
-                                @mousedown.prevent
-                            >
-                                {{ $tag->name }}
-                            </button>
-                        @endforeach
-                    @else
-                        <div class="tag-no-results">Geen tags gevonden voor "{{ $tagSearch }}"</div>
+            <div class="filters-row">
+                <div class="make-model-filter">
+                    <div class="select-wrapper">
+                        <svg class="select-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="1" y="3" width="15" height="13"/>
+                            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                            <circle cx="5.5" cy="18.5" r="2.5"/>
+                            <circle cx="18.5" cy="18.5" r="2.5"/>
+                        </svg>
+                        <select wire:model.live="selectedMake" class="make-select">
+                            <option value="">Alle merken</option>
+                            @foreach($this->makes as $make)
+                                <option value="{{ $make }}">{{ $make }}</option>
+                            @endforeach
+                        </select>
+                        <svg class="select-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </div>
+
+                    @if($selectedMake)
+                        <div class="select-wrapper">
+                            <select wire:model.live="selectedModel" class="make-select no-icon">
+                                <option value="">Alle modellen</option>
+                                @foreach($this->models as $model)
+                                    <option value="{{ $model }}">{{ $model }}</option>
+                                @endforeach
+                            </select>
+                            <svg class="select-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </div>
                     @endif
+                </div>
+
+                <div class="tag-search-wrapper">
+                    <svg class="tag-search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input
+                        type="text"
+                        wire:model.live.debounce.200ms="tagSearch"
+                        @focus="open = true"
+                        @click.outside="open = false"
+                        placeholder="Filter op tags..."
+                        class="tag-search-input"
+                        autocomplete="off"
+                    />
+
+                    <div class="tag-dropdown" x-show="open && $wire.tagSearch.length > 0" x-cloak>
+                        @if($this->suggestedTags->isNotEmpty())
+                            @foreach($this->suggestedTags as $tag)
+                                <button
+                                    type="button"
+                                    class="tag-option"
+                                    wire:click="selectTag({{ $tag->id }}, '{{ $tag->name }}')"
+                                    @mousedown.prevent
+                                >
+                                    {{ $tag->name }}
+                                </button>
+                            @endforeach
+                        @else
+                            <div class="tag-no-results">Geen tags gevonden voor "{{ $tagSearch }}"</div>
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -204,7 +326,8 @@ class extends Component {
     @else
         <div class="listings-grid">
             @foreach($this->cars as $car)
-                <a href="/#" class="listings-card {{ !$car->image ? 'no-image' : '' }} {{ $car->isBig ? 'bigger' : '' }}">
+                <a href="/#"
+                   class="listings-card {{ !$car->image ? 'no-image' : '' }} {{ $car->isBig ? 'bigger' : '' }}">
 
                     <div class="listings-image">
                         @if($car->image)

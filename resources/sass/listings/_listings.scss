@@ -299,6 +299,17 @@
     gap: 0.6rem;
 }
 
+.filters-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+    }
+}
+
 .selected-tags {
     display: flex;
     flex-wrap: wrap;
@@ -353,9 +364,53 @@
     }
 }
 
+.reset-filters {
+    display: flex;
+    align-items: center;
+}
+
+.reset-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+
+    svg {
+        width: 13px;
+        height: 13px;
+        flex-shrink: 0;
+    }
+
+    &:hover {
+        background: #e5e7eb;
+        color: #374151;
+        border-color: #d1d5db;
+    }
+
+    &:active {
+        background: #d1d5db;
+    }
+}
+
 .tag-search-wrapper {
     position: relative;
-    max-width: 320px;
+    flex: 1;
+    min-width: 220px;
+
+    @media (max-width: 768px) {
+        max-width: 100%;
+        width: 100%;
+    }
 }
 
 .tag-search-icon {
@@ -433,4 +488,56 @@
     font-size: 0.82rem;
     color: #9ca3af;
     font-style: italic;
+}
+
+.make-model-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+
+    .select-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .select-icon {
+        position: absolute;
+        left: 0.75rem;
+        color: #9ca3af;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .make-select {
+        appearance: none;
+        padding: 0.55rem 2.25rem 0.55rem 2.25rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-family: inherit;
+        color: #111;
+        background: #fff;
+        cursor: pointer;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        white-space: nowrap;
+
+        &:focus {
+            border-color: #9ca3af;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+        }
+
+        &.no-icon {
+            padding-left: 0.9rem;
+        }
+    }
+
+    .select-chevron {
+        position: absolute;
+        right: 0.65rem;
+        color: #9ca3af;
+        pointer-events: none;
+    }
 }
