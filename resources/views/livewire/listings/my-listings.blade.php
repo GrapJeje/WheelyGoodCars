@@ -9,15 +9,7 @@ class extends Component {
 
     public function mount()
     {
-        $this->listings = auth()->user()->listings;
-    }
-
-    public function deleteListing($id)
-    {
-        $listing = auth()->user()->listings()->findOrFail($id);
-        $listing->delete();
-        $this->mount();
-        $this->dispatch('notify', message: 'Advertentie verwijderd');
+        $this->listings = auth()->user()->listings()->get();
     }
 };
 ?>
@@ -32,7 +24,7 @@ class extends Component {
     <div class="list">
         @forelse($listings as $listing)
             <div class="list-item">
-                <a href="" class="list-item-link">
+                <a href="{{ route('car.detail', $listing->license_plate) }}" class="list-item-link">
                     <div class="list-image">
                         @if($listing->image)
                             <img src="{{ asset('storage/' . $listing->image) }}" alt="{{ $listing->make }} {{ $listing->model }}">
@@ -71,22 +63,6 @@ class extends Component {
                         <span class="price">€&nbsp;{{ number_format($listing->price, 0, ',', '.') }}</span>
                     </div>
                 </a>
-
-                <div class="list-actions">
-                    <button wire:click="deleteListing({{ $listing->id }})"
-                            wire:confirm="Weet je zeker dat je deze advertentie wilt verwijderen?"
-                            class="btn-delete"
-                            title="Verwijderen">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                             stroke-linejoin="round">
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            <line x1="10" y1="11" x2="10" y2="17"></line>
-                            <line x1="14" y1="11" x2="14" y2="17"></line>
-                        </svg>
-                    </button>
-                </div>
             </div>
         @empty
             <div class="list-empty">

@@ -5,9 +5,6 @@ use Livewire\Volt\Volt;
 Volt::route('/', 'home')
     ->name('home');
 
-Volt::route('/{plate}', 'listings.detail')
-    ->name('car.detail');
-
 Route::middleware('guest')->group(function () {
     Volt::route('/register', 'auth.register')
         ->name('register');
@@ -23,3 +20,7 @@ Route::middleware('auth')->group(function () {
     Volt::route('/mijn-aanbod', 'listings.my-listings')
         ->name('user.listings');
 });
+
+Volt::route('/{plate}', 'listings.detail')
+    ->name('car.detail');
+

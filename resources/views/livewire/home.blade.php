@@ -129,6 +129,7 @@ class extends Component {
         $selectedIds = collect($this->selectedTags)->pluck('id');
 
         $query = Cars::with('owner', 'tags')
+            ->whereNull('sold_at')
             ->orderBy('created_at', 'desc');
 
         // Filter on selected tags if any are active
