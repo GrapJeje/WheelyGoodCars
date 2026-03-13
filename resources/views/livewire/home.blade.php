@@ -326,7 +326,7 @@ class extends Component {
     @else
         <div class="listings-grid">
             @foreach($this->cars as $car)
-                <a href="/#"
+                <a href="{{ route('car.detail', ["plate" => $car->license_plate]) }}"
                    class="listings-card {{ !$car->image ? 'no-image' : '' }} {{ $car->isBig ? 'bigger' : '' }}">
 
                     <div class="listings-image">
