@@ -49,18 +49,20 @@ class extends Component {
                         </div>
                     </div>
 
-                    <div class="list-plate">
-                        <span class="license-plate">{{ $listing->license_plate }}</span>
-                    </div>
+                    <div class="list-meta-row">
+                        <div class="list-plate">
+                            <span class="license-plate">{{ $listing->license_plate }}</span>
+                        </div>
 
-                    <div class="list-status">
-                        <span class="selling-label {{ $listing->sold_at ? 'sold' : 'selling' }}">
-                            {{ $listing->sold_at ? 'Verkocht' : 'Te koop' }}
-                        </span>
-                    </div>
+                        <div class="list-status">
+                            <span class="selling-label {{ $listing->sold_at ? 'sold' : 'selling' }}">
+                                {{ $listing->sold_at ? 'Verkocht' : 'Te koop' }}
+                            </span>
+                        </div>
 
-                    <div class="list-price">
-                        <span class="price">€&nbsp;{{ number_format($listing->price, 0, ',', '.') }}</span>
+                        <div class="list-price">
+                            <span class="price">€&nbsp;{{ number_format($listing->price, 0, ',', '.') }}</span>
+                        </div>
                     </div>
                 </a>
             </div>
