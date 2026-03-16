@@ -21,7 +21,7 @@ class extends Component {
     public $selectedTags = [];
     public $showTagDropdown = false;
 
-    // Brank and model filter state
+    // Brand and model filter state
     public $selectedMake = '';
     public $selectedModel = '';
 
@@ -102,7 +102,6 @@ class extends Component {
             ->get();
     }
 
-    // Modellen die bij het geselecteerde merk horen
     #[Computed]
     public function models()
     {
@@ -114,15 +113,14 @@ class extends Component {
             ->pluck('model');
     }
 
-// Unieke merken voor de dropdown
     #[Computed]
     public function makes()
     {
         return Cars::distinct()->orderBy('make')->pluck('make');
     }
 
-    // Fetch paginated cars, apply bigChance and fill any leftover grid spots
-    // with extra cards from the next page to avoid empty columns
+    // Fetch paginated cars, apply bigChance and fill leftover grid spots
+    // with extra cards to compensate for big (double-width) cards
     #[Computed]
     public function cars()
     {
@@ -156,28 +154,6 @@ class extends Component {
             $car->isBig = rand(1, 100) <= $this->bigChance;
             return $car;
         });
-
-        // Count occupied columns (big = 2, small = 1) and fetch extra cards
-        // if the last row is incomplete
-        $cols = $cars->getCollection()->sum(fn($car) => $car->isBig ? 2 : 1);
-        $remainder = $cols % 3;
-
-
-        if ($remainder !== 0 && $cars->hasMorePages()) {
-            $extra = 3 - $remainder;
-            $extraCars = Cars::with('owner', 'tags')
-                ->orderBy('created_at', 'desc')
-                ->skip($this->perPage)
-                ->take($extra)
-                ->get()
-                ->transform(function ($car) {
-                    $car->isBig = false; // extra cards are never big
-                    return $car;
-                });
-
-            $cars->getCollection()->push(...$extraCars);
-        }
-
         return $cars;
     }
 }; ?>
