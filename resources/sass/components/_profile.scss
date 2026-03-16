@@ -1,22 +1,70 @@
 .profile-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+
     img {
-        height: 80%;
-        width: 80%;
+        height: 36px;
+        width: 36px;
+        object-fit: contain;
     }
 
     .dropdown {
         position: absolute;
         top: 110%;
-        right: 15px;
+        right: 0;
         z-index: 50;
         min-width: 180px;
         padding: 10px;
 
         background-color: white;
         border-radius: 15px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        a {
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+
+            &:hover {
+                background-color: #f3f4f6;
+            }
+        }
 
         .logout-button {
             cursor: pointer;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: inherit;
+            color: #ef4444;
+            transition: background-color 0.2s ease;
+
+            &:hover {
+                background-color: #fef2f2;
+            }
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-container {
+        img {
+            height: 30px;
+            width: 30px;
+        }
+
+        .dropdown {
+            right: -0.75rem;
+            min-width: 160px;
         }
     }
 }

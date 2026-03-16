@@ -49,6 +49,18 @@ body {
     margin: 0 auto;
 }
 
+@media (max-width: 768px) {
+    .container-40 {
+        width: 70%;
+    }
+}
+
+@media (max-width: 480px) {
+    .container-40 {
+        width: 90%;
+    }
+}
+
 .pagination-wrapper {
     margin-top: 2rem;
     display: flex;
